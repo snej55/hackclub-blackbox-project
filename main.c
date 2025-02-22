@@ -34,8 +34,24 @@ float minf(float x, float y) {
     return x < y ? x : y;
 }
 
+int clampi(int x, int lower_bound, int upper_bound) {
+    return mini(upper_bound, maxf(lower_bound, x));
+}
+
+float clampf(float x, float lower_bound, float upper_bound) {
+    return mini(upper_bound, maxf(lower_bound, x));
+}
+
+int getIndex(int x, int y)
+{
+    // row * width + col
+    return y * 8 + x;
+}
+
 void drawRect(int x, int y, int w, int h) {
-    
+    for (int i = 0; i < h; ++i) {
+        blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_on();
+    }
 }
  
 // Your main loop goes here!
