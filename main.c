@@ -39,6 +39,9 @@ float scrollY = 0.0;
 float direction = 0.0;
 float vel = 0.0;
 
+float playerX = 0.0;
+float playerY = 0.0;
+
 // float to integer
 int f2i(float x) {
   return x - (x % 1);
@@ -157,6 +160,16 @@ void limitRangef(float x, float lower_bound, float upper_bound) {
   return x;
 }
 
+// set matrix pixel from floating point coordinates
+void setpixelf(float x, float y) {
+  int xp = f2i(x);
+  int yp = f2i(y);
+  // check if it's on the screen
+  if (xp >= 0 && xp <= 7 && yp >= 0 && yp <= 7) {
+    blackbox->matrix.pixel_xy(xp, yp).turn_on();
+  }
+}
+
 // draws rect out of slices
 void drawRect(int x, int y, int w, int h) {
     for (int i = 0; i < h; ++i) {
@@ -224,33 +237,16 @@ void drawRotRect(float xpos, float ypos, float width, float height, float angle)
       px = xnew + cx;
       py = ynew + cy;
 
-      // convert to integer for rendering
-      int point_x = f2i(px);
-      int point_y = f2i(py);
-
-      // clamp values
-      int render_x = clampi(point_x, 0, 7);
-      int render_y = clampi(point_y, 0, 7);
       // render
-      blackbox->matrix.pixel_xy(render_x, render_y).turn_on();
+      setpixelf(px, py);
     }
-  }
-}
-
-// set matrix pixel from floating point coordinates
-void setpixelf(float x, float y) {
-  int xp = f2i(x);
-  int yp = f2i(y);
-  // check if it's on the screen
-  if (xp >= 0 && xp <= 7 && yp >= 0 && yp <= 7) {
-    blackbox->matrix.pixel_xy(xp, yp).turn_on();
   }
 }
 
 // check if pixel is solid
 // yoffset = scroll
 int isontrack(float x, float y, float yoffset) {
-  float rel_x = x / 8.0;
+  float rel_x = x / 8.0 - scrollX;
   float rel_y = y / 8.0;
 
   float tosin = rel_y * 3.0 - yoffset;
@@ -267,15 +263,24 @@ int isontrack(float x, float y, float yoffset) {
 }
 
 // These functions are called when the buttons are pressed
-void on_up() {}
-void on_down() {}
-void on_left() {}
-void on_right() {}
+void on_up() {
+  vel += 1.0;
+}
+void on_down() {
+  vel -= 1.0;
+}
+void on_left() {
+  direction -= 0.5;
+  direction = limitRangef(direction, -M_PI, M_PI);
+}
+void on_right() {
+  direction += 0.5;
+  direction = limitRangef(direction, -M_PI, M_PI);
+}
 void on_select() {}
 
 // These functions are called repeatedly
 void on_timeout_1() {
-  scrollY = scrollY + 0.1;
   // update time
   Time = Time + 0.01;
   // limit to -M_PI - M_PI
@@ -295,9 +300,14 @@ void on_timeout_2() {
     }
   }
   
-  // slug
-  // float angle = sinex(Time) * M_PI;
-  // drawRotRect(3.0, 2.0, 2.0, 5.0, Time);
+  // update slug
+  playerX += cosx(direction) * vel;
+  playerY += sinex(direction) * vel;
+  vel = maxf(vel + (-1), 0.0);
+  // vel *= 0.5;
+
+  // draw it
+  drawRotRect(playerX, playerY, 2.0, 5.0, direction);
 }
  
 // Your main loop goes here!
