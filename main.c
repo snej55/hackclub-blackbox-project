@@ -111,18 +111,6 @@ int getIndex(int x, int y)
     return y * 8 + x;
 }
 
-void drawRect(int x, int y, int w, int h) {
-    for (int i = 0; i < h; ++i) {
-        blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_on();
-    }
-}
-
-void clearRect(int x, int y, int w, int h) {
-    for (int i = 0; i < h; ++i) {
-        blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_off();
-    }
-}
-
 int limitRangei(int x, int lower_bound, int upper_bound) {
   if (x > upper_bound) {
     x = lower_bound;
@@ -143,24 +131,106 @@ void limitRangef(float x, float lower_bound, float upper_bound) {
   return x;
 }
 
+
+void drawRect(int x, int y, int w, int h) {
+    for (int i = 0; i < h; ++i) {
+        blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_on();
+    }
+}
+
+void clearRect(int x, int y, int w, int h) {
+    for (int i = 0; i < h; ++i) {
+        blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_off();
+    }
+}
+
+// checks collision between point and rectangle
+// rectx, recty, rectwidth, rectheight, point x, point y
+int checkCollisionRect(int rx, int ry, int rw, int rh, int px, int py) {
+  if (px >= rx && px < rx + rw && py >= ry && py < ry + rh) {
+    return 1;
+  }
+  return 0;
+}
+
+void drawRotRect(float xpos, float ypos, float width, float height, float angle)
+{
+  // convert angle to radians
+  float a = angle;
+  a = limitRangef(a, -M_PI, M_PI);
+
+  // // sin & cos values
+  float s = sinex(a);
+  float c = cosx(a);
+
+  // // center x & center y
+  float cx = 4.0;
+  float cy = 4.0;
+
+  // iterate over points
+  for (float x = 0; x < 8; ++x) {
+    for (float y = 0; y < 8; ++y) {
+      // // blackbox->matrix.pixel_xy(x, y).turn_on();
+  
+      // // // point
+      float px = x - cx;
+      float py = y - cy;
+  
+      // rotate
+      float xnew = px * c - py * s;
+      float ynew = px * s + py * c;
+  
+      // return back to where we started
+      px = xnew + cx;
+      py = ynew + cy;
+
+      int point_x = f2i(px);
+      int point_y = f2i(py);
+      int rectx = f2i(xpos);
+      int recty = f2i(ypos);
+      int rectw = f2i(width);
+      int recth = f2i(height);
+      
+      int collision = checkCollisionRect(rectx, recty, rectw, recth, point_x, point_y);
+      if (collision == 1) {
+        int render_x = clampi(point_x, 0, 7);
+        int render_y = clampi(point_y, 0, 7);
+        blackbox->matrix.pixel_xy(render_x, render_y).turn_on();
+      }
+    }
+  }
+}
+
 // These functions are called when the buttons are pressed
-void on_up() {}
-void on_down() {}
-void on_left() {}
-void on_right() {}
+void on_up() {
+}
+void on_down() {
+}
+void on_left() {
+}
+void on_right() {
+}
 void on_select() {}
 
 // These functions are called repeatedly
 void on_timeout_1() {
-  Time = Time + 0.02;
+  Time = Time + 0.01;
   Time = limitRangef(Time, -M_PI, M_PI);
-  int x = f2i(sinex(Time) * 4.0 + 4.0);
-  int y = f2i(cosx(Time) * 4.0 + 4.0);
-  blackbox->matrix.pixel(getIndex(clampi(x, 0, 8), clampi(y, 0, 8))).turn_on();
 }
 
 void on_timeout_2() {
-  
+  blackbox->matrix.turn_all_off();
+  drawRotRect(2.0, 1.0, 3.0, 5.0, Time);
+  // int x = clampi(f2i(xpos), 0, 7);
+  // int y = clampi(f2i(ypos), 0, 7);
+  // blackbox->matrix.pixel_xy(x, y).turn_on();
+  // drawRect(2, 2, 4, 4);
+  // int colliding = checkCollisionRect(2, 2, 4, 4, x, y);
+  // if (colliding == 1) {
+  //   blackbox->matrix.pixel_xy(0, 0).turn_on();
+  // } else {
+  //   blackbox->matrix.pixel_xy(0, 0).turn_off();
+  // }
 }
  
 // Your main loop goes here!
@@ -171,6 +241,5 @@ void main() {
   // blackbox->matrix.slice(0, 8)->turn_all_on();
   // float x = (int)clampf((float)(1), 0.0, 10.0);
   while (1) {
-    
   }
 }
