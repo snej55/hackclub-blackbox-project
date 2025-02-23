@@ -1,9 +1,23 @@
 #include "blackbox.h"
+#include <math.h>
 
 // VEXATA QUAESTIO
 
 #define BLACKBOX_TIMEOUT_1 1
 #define BLACKBOX_TIMEOUT_2 125
+
+const float M_PI = 3.14159265359;
+
+// factorials
+const float FAC2 = 2.0;
+const float FAC3 = 6.0;
+const float FAC4 = 24.0;
+const float FAC5 = 120.0;
+const float FAC6 = 720.0;
+const float FAC7 = 5040.0;
+const float FAC8 = 40320.0;
+const float FAC9 = 362880.0;
+const float FAC10 = 3628800.0;
 
 BlackBox* blackbox;
 
@@ -17,6 +31,57 @@ void on_select() {}
 // These functions are called repeatedly
 void on_timeout_1() {}
 void on_timeout_2() {}
+
+int factoriali(int n) {
+    int i;
+    int fact = 1;
+
+    for (i = 1; i <= n; i++) {
+        fact *= i;
+    }
+
+    return fact;
+}
+
+float factorialf(float n) {
+    float i;
+    float fact = 1;
+
+    for (i = 1; i <= n; i++) {
+        fact *= i;
+    }
+
+    return fact;
+}
+
+int poweri(int n, int power) {
+    int result = n;
+    for(int i = 1; i < power; i++) {
+        result = n * result;
+    }
+    return result;
+}
+
+float powerf(float n, float power) {
+    float result = n;
+    for(int i = 1; i < power; i++) {
+        result = n * result;
+    }
+    return result;
+}
+
+float sinex(float x) {
+  return x - (powerf(x, 3.0) / FAC3) + (powerf(x, 5.0) / FAC5) - (powerf(x, 7.0) / FAC7) + (powerf(x, 9.0) / FAC9);
+}
+
+float cosx(float x) {
+    return 1.0 - (powerf(x, 2.0) / FAC2) + (powerf(x, 4.0) / FAC4) - (powerf(x, 6.0) / FAC6) + (powerf(x, 8.0) / FAC8);
+}
+
+// float 2 integer
+int f2i(float x) {
+  return x - (x % 1);
+}
 
 int maxi(int x, int y) {
     return x > y ? x : y;
@@ -35,7 +100,7 @@ float minf(float x, float y) {
 }
 
 int clampi(int x, int lower_bound, int upper_bound) {
-    return mini(upper_bound, maxf(lower_bound, x));
+    return mini(upper_bound, maxi(lower_bound, x));
 }
 
 float clampf(float x, float lower_bound, float upper_bound) {
@@ -54,13 +119,20 @@ void drawRect(int x, int y, int w, int h) {
     }
 }
 
-void drawRectF(float x, float y, float w, float h) {
-    drawRect((int)x, (int)y, (int)w, (int)h);
+void clearRect(int x, int y, int w, int h) {
+    for (int i = 0; i < h; ++i) {
+        blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_off();
+    }
 }
  
 // Your main loop goes here!
 void main() {
-  drawRectF(1.5f, 1.21f, 3.456f, 2.9f);
+  // float xf = factorial(4);
+  
+  int x = f2i(1);
+  drawRect(1, f2i(cosx(0)), 3, 3);
+  // blackbox->matrix.slice(0, 8)->turn_all_on();
+  // float x = (int)clampf((float)(1), 0.0, 10.0);
   while (1) {
 
   }
