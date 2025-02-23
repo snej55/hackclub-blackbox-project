@@ -68,7 +68,10 @@ float fmod(float a, float b)
 int main() {
     // for (int i = 0; i < 10; ++i)
     // {
-    printf("%i %f \n", 1, sinex(M_PI));
+    int s = 0;
+    unsigned int seed = &s;
+    seed = seed / 2 % 10;
+    printf("%i \n", seed);
     // }
     return 0;
 }
