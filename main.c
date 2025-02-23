@@ -6,6 +6,8 @@
 #define BLACKBOX_TIMEOUT_1 1
 #define BLACKBOX_TIMEOUT_2 125
 
+float Time = 0.0;
+
 const float M_PI = 3.14159265359;
 
 // factorials
@@ -21,16 +23,16 @@ const float FAC10 = 3628800.0;
 
 BlackBox* blackbox;
 
-// These functions are called when the buttons are pressed
-void on_up() {}
-void on_down() {}
-void on_left() {}
-void on_right() {}
-void on_select() {}
+int f2i(float x) {
+  return x - (x % 1);
+}
 
-// These functions are called repeatedly
-void on_timeout_1() {}
-void on_timeout_2() {}
+float fmod(float a, float b)
+{
+    float frac = a / b;
+    int floor = frac > 0 ? f2i(frac) : f2i(frac - 0.99999);
+    return (a - b * floor);
+}
 
 int factoriali(int n) {
     int i;
@@ -79,10 +81,6 @@ float cosx(float x) {
 }
 
 // float 2 integer
-int f2i(float x) {
-  return x - (x % 1);
-}
-
 int maxi(int x, int y) {
     return x > y ? x : y;
 }
@@ -124,16 +122,55 @@ void clearRect(int x, int y, int w, int h) {
         blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_off();
     }
 }
+
+int limitRangei(int x, int lower_bound, int upper_bound) {
+  if (x > upper_bound) {
+    x = lower_bound;
+  }
+  if (x < lower_bound) {
+    x = upper_bound;
+  }
+  return x;
+}
+
+void limitRangef(float x, float lower_bound, float upper_bound) {
+  if (x > upper_bound) {
+    x = lower_bound;
+  }
+  if (x < lower_bound) {
+    x = upper_bound;
+  }
+  return x;
+}
+
+// These functions are called when the buttons are pressed
+void on_up() {}
+void on_down() {}
+void on_left() {}
+void on_right() {}
+void on_select() {}
+
+// These functions are called repeatedly
+void on_timeout_1() {
+  Time = Time + 0.02;
+  Time = limitRangef(Time, -M_PI, M_PI);
+  int x = f2i(sinex(Time) * 4.0 + 4.0);
+  int y = f2i(cosx(Time) * 4.0 + 4.0);
+  blackbox->matrix.pixel(getIndex(clampi(x, 0, 8), clampi(y, 0, 8))).turn_on();
+}
+
+void on_timeout_2() {
+  
+}
  
 // Your main loop goes here!
 void main() {
   // float xf = factorial(4);
-  
-  int x = f2i(1);
-  drawRect(1, f2i(cosx(0)), 3, 3);
+
+  // drawRect(1, f2i(cosx(0)), 3, 3);
   // blackbox->matrix.slice(0, 8)->turn_all_on();
   // float x = (int)clampf((float)(1), 0.0, 10.0);
   while (1) {
-
+    
   }
 }
