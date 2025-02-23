@@ -219,7 +219,8 @@ void drawRotRect(float xpos, float ypos, float width, float height, float angle)
 
   int ccx = f2i(cx);
   int ccy = f2i(cy);
-  blackbox->matrix.pixel_xy(ccx, ccy).turn_on();
+  // for testing
+  // blackbox->matrix.pixel_xy(ccx, ccy).turn_on();
 
   // iterate over points in rectangle, then rotates them
   for (float x = xpos; x < xpos + width; ++x) {
@@ -246,16 +247,16 @@ void drawRotRect(float xpos, float ypos, float width, float height, float angle)
 // check if pixel is solid
 // yoffset = scroll
 int isontrack(float x, float y, float yoffset) {
-  float rel_x = x / 8.0 - scrollX;
-  float rel_y = y / 8.0;
+  float rel_x = (x) / 8.0;
+  float rel_y = (y) / 8.0;
 
-  float tosin = rel_y * 3.0 - yoffset;
+  float tosin = rel_y * 3.0 + yoffset;
   tosin = fmod(tosin, 2.0 * M_PI) - M_PI;
 
   float val = sinex(tosin) * 0.4;
   val = val + 0.4;
 
-  if (rel_x > val - 0.5 && rel_x < val + 0.4) {
+  if (rel_x > val - 0.6 && rel_x < val + 0.6) {
     return 0;
   }
 
@@ -301,13 +302,17 @@ void on_timeout_2() {
   }
   
   // update slug
-  playerX += cosx(direction) * vel;
-  playerY += sinex(direction) * vel;
-  vel = maxf(vel + (-1), 0.0);
+  playerX += cosx(direction - M_PI * 0.5) * vel;
+  playerY += sinex(direction - M_PI * 0.5) * vel;
+  vel = maxf(vel + (-0.5), 0.0);
+
+  // scrollX = playerX - 4.0;
+  scrollY = playerY - 4.0;
+  
   // vel *= 0.5;
 
   // draw it
-  drawRotRect(playerX, playerY, 2.0, 5.0, direction);
+  drawRotRect(playerX - scrollX, playerY - scrollY, 2.0, 5.0, direction);
 }
  
 // Your main loop goes here!
