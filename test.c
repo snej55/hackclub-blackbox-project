@@ -58,10 +58,17 @@ float cosx(float x) {
     return 1.0 - (powerf(x, 2.0) / FAC2) + (powerf(x, 4.0) / FAC4) - (powerf(x, 6.0) / FAC6) + (powerf(x, 8.0) / FAC8);
 }
 
+float fmod(float a, float b)
+{
+    float frac = a / b;
+    int floor = frac > 0 ? (int)frac : (int)(frac - 0.9999999999999999);
+    return (a - b * floor);
+}
+
 int main() {
     // for (int i = 0; i < 10; ++i)
     // {
-    printf("%i %f \n", 1, cosx(M_PI / 2.0));
+    printf("%i %f \n", 1, sinex(M_PI));
     // }
     return 0;
 }
