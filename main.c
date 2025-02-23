@@ -6,7 +6,7 @@
 // f postfix refers to float
 
 #define BLACKBOX_TIMEOUT_1 1
-#define BLACKBOX_TIMEOUT_2 125
+#define BLACKBOX_TIMEOUT_2 50
 
 // keep track of time
 // wraps around from PI to -PI
@@ -28,6 +28,16 @@ const float FAC9 = 362880.0;
 const float FAC10 = 3628800.0;
 
 BlackBox* blackbox;
+
+// game data
+
+// camera
+float scrollX = 0.0;
+float scrollY = 0.0;
+
+// player movement
+float direction = 0.0;
+float vel = 0.0;
 
 // float to integer
 int f2i(float x) {
@@ -238,23 +248,34 @@ void setpixelf(float x, float y) {
 }
 
 // check if pixel is solid
-int isontrack(float x, float y) {
-  
+// yoffset = scroll
+int isontrack(float x, float y, float yoffset) {
+  float rel_x = x / 8.0;
+  float rel_y = y / 8.0;
+
+  float tosin = rel_y * 3.0 - yoffset;
+  tosin = fmod(tosin, 2.0 * M_PI) - M_PI;
+
+  float val = sinex(tosin) * 0.4;
+  val = val + 0.4;
+
+  if (rel_x > val - 0.5 && rel_x < val + 0.4) {
+    return 0;
+  }
+
+  return 1;
 }
 
 // These functions are called when the buttons are pressed
-void on_up() {
-}
-void on_down() {
-}
-void on_left() {
-}
-void on_right() {
-}
+void on_up() {}
+void on_down() {}
+void on_left() {}
+void on_right() {}
 void on_select() {}
 
 // These functions are called repeatedly
 void on_timeout_1() {
+  scrollY = scrollY + 0.1;
   // update time
   Time = Time + 0.01;
   // limit to -M_PI - M_PI
@@ -265,9 +286,18 @@ void on_timeout_2() {
   // clear screen
   blackbox->matrix.turn_all_off();
 
+  for (float x = 0; x < 8; ++x) {
+    for (float y = 0; y < 8; ++y) {
+      int valid = isontrack(x, y, scrollY);
+      if (valid == 1) {
+        setpixelf(x, y); 
+      }
+    }
+  }
+  
   // slug
-  float angle = sinex(Time) * M_PI;
-  drawRotRect(3.0, 2.0, 2.0, 5.0, Time);
+  // float angle = sinex(Time) * M_PI;
+  // drawRotRect(3.0, 2.0, 2.0, 5.0, Time);
 }
  
 // Your main loop goes here!
