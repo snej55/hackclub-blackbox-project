@@ -118,12 +118,14 @@ float clampf(float x, float lower_bound, float upper_bound) {
     return minf(upper_bound, maxf(lower_bound, x));
 }
 
+// get index from 2D coordinates
 int getIndex(int x, int y)
 {
     // row * width + col
     return y * 8 + x;
 }
 
+// like modulus, but safer
 int limitRangei(int x, int lower_bound, int upper_bound) {
   if (x > upper_bound) {
     x = lower_bound;
@@ -134,6 +136,7 @@ int limitRangei(int x, int lower_bound, int upper_bound) {
   return x;
 }
 
+// same for floats
 void limitRangef(float x, float lower_bound, float upper_bound) {
   if (x > upper_bound) {
     x = lower_bound;
@@ -144,13 +147,14 @@ void limitRangef(float x, float lower_bound, float upper_bound) {
   return x;
 }
 
-
+// draws rect out of slices
 void drawRect(int x, int y, int w, int h) {
     for (int i = 0; i < h; ++i) {
         blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_on();
     }
 }
 
+// same as above but clear it
 void clearRect(int x, int y, int w, int h) {
     for (int i = 0; i < h; ++i) {
         blackbox->matrix.slice(getIndex(clampi(x, 0, 7), clampi(y + i, 0, 7)), getIndex(clampi(x + w - 1, 0, 7), clampi(y + i, 0, 7)))->turn_all_off();
@@ -223,6 +227,7 @@ void drawRotRect(float xpos, float ypos, float width, float height, float angle)
   }
 }
 
+// set matrix pixel from floating point coordinates
 void setpixelf(float x, float y) {
   int xp = f2i(x);
   int yp = f2i(y);
@@ -232,6 +237,7 @@ void setpixelf(float x, float y) {
   }
 }
 
+// check if pixel is solid
 int isontrack(float x, float y) {
   
 }
@@ -249,22 +255,22 @@ void on_select() {}
 
 // These functions are called repeatedly
 void on_timeout_1() {
+  // update time
   Time = Time + 0.01;
+  // limit to -M_PI - M_PI
   Time = limitRangef(Time, -M_PI, M_PI);
 }
 
 void on_timeout_2() {
+  // clear screen
   blackbox->matrix.turn_all_off();
+
+  // slug
   float angle = sinex(Time) * M_PI;
   drawRotRect(3.0, 2.0, 2.0, 5.0, Time);
 }
  
 // Your main loop goes here!
 void main() {
-  // float xf = factorial(4);
-
-  // drawRect(1, f2i(cosx(0)), 3, 3);
-  // blackbox->matrix.slice(0, 8)->turn_all_on();
-  // float x = (int)clampf((float)(1), 0.0, 10.0);
   while (1) {}
 }
