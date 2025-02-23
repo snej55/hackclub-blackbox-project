@@ -153,23 +153,35 @@ int checkCollisionRect(int rx, int ry, int rw, int rh, int px, int py) {
   return 0;
 }
 
+int checkCollisionRectf(float rx, float ry, float rw, float rh, float px, float py) {
+  if (px >= rx && px < rx + rw && py >= ry && py < ry + rh) {
+    return 1;
+  }
+  return 0;
+}
+
 void drawRotRect(float xpos, float ypos, float width, float height, float angle)
 {
   // convert angle to radians
-  float a = angle;
-  a = limitRangef(a, -M_PI, M_PI);
+  float a = limitRangef(angle, -M_PI, M_PI);
 
   // // sin & cos values
   float s = sinex(a);
   float c = cosx(a);
 
   // // center x & center y
-  float cx = 4.0;
-  float cy = 4.0;
+  float cx = xpos;
+  cx = cx + width * 0.5;
+  float cy = ypos;
+  cy = cy + height * 0.5;
+
+  int ccx = f2i(cx);
+  int ccy = f2i(cy);
+  blackbox->matrix.pixel_xy(ccx, ccy).turn_on();
 
   // iterate over points
-  for (float x = 0; x < 8; ++x) {
-    for (float y = 0; y < 8; ++y) {
+  for (float x = xpos; x < xpos + width; ++x) {
+    for (float y = ypos; y < ypos + height; ++y) {
       // // blackbox->matrix.pixel_xy(x, y).turn_on();
   
       // // // point
@@ -186,19 +198,20 @@ void drawRotRect(float xpos, float ypos, float width, float height, float angle)
 
       int point_x = f2i(px);
       int point_y = f2i(py);
-      int rectx = f2i(xpos);
-      int recty = f2i(ypos);
-      int rectw = f2i(width);
-      int recth = f2i(height);
       
-      int collision = checkCollisionRect(rectx, recty, rectw, recth, point_x, point_y);
-      if (collision == 1) {
+      // int collision = checkCollisionRectf(xpos, ypos, width, height, px, py);
+      // if (collision == 1) {
         int render_x = clampi(point_x, 0, 7);
         int render_y = clampi(point_y, 0, 7);
         blackbox->matrix.pixel_xy(render_x, render_y).turn_on();
-      }
+      // }
     }
   }
+}
+
+void setpixelf(float x, float y) {
+  int xp = f2i(x);
+  int yp = f2i(y);
 }
 
 // These functions are called when the buttons are pressed
@@ -220,17 +233,8 @@ void on_timeout_1() {
 
 void on_timeout_2() {
   blackbox->matrix.turn_all_off();
-  drawRotRect(2.0, 1.0, 3.0, 5.0, Time);
-  // int x = clampi(f2i(xpos), 0, 7);
-  // int y = clampi(f2i(ypos), 0, 7);
-  // blackbox->matrix.pixel_xy(x, y).turn_on();
-  // drawRect(2, 2, 4, 4);
-  // int colliding = checkCollisionRect(2, 2, 4, 4, x, y);
-  // if (colliding == 1) {
-  //   blackbox->matrix.pixel_xy(0, 0).turn_on();
-  // } else {
-  //   blackbox->matrix.pixel_xy(0, 0).turn_off();
-  // }
+  float angle = sinex(Time) * M_PI;
+  drawRotRect(2.0, 2.0, 1.0, 5.0, Time);
 }
  
 // Your main loop goes here!
