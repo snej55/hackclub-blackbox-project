@@ -39,7 +39,7 @@ float scrollY = 0.0;
 float direction = 0.0;
 float vel = 0.0;
 
-float playerX = 0.0;
+float playerX = 3.0;
 float playerY = 0.0;
 
 // float to integer
