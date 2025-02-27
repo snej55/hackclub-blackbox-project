@@ -271,11 +271,11 @@ void on_down() {
   vel -= 1.0;
 }
 void on_left() {
-  direction -= 0.5;
+  direction -= 0.4;
   direction = limitRangef(direction, -M_PI, M_PI);
 }
 void on_right() {
-  direction += 0.5;
+  direction += 0.4;
   direction = limitRangef(direction, -M_PI, M_PI);
 }
 void on_select() {}
